@@ -58,7 +58,7 @@ Resources:
             Version: 2012-10-17,
             Statement: [
                {
-                  Sid: RestrictUploads,
+                  Sid: EnforceTagging,
                   Principal: '*',
                   Action: [
                      's3:PutObject',
@@ -102,10 +102,13 @@ Resources:
                   Effect: Deny,
                },
                {
-                  Sid: PreventDeletion,
+                  Sid: PreventDamage,
                   Principal: '*',
                   Action: [
                      's3:DeleteObject',
+                     's3:DeleteObjectTagging',
+                     's3:DeleteObjectVersion',
+                     's3:DeleteObjectVersionTagging',
                   ],
                   Resource: [
                      {
@@ -178,7 +181,75 @@ Resources:
                               ],
                            },
                            StringLike: {
-                              's3:RequestObjectTag/years': '20??',
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
+                           },
+                        },
+                        Effect: Allow,
+                     },
+                     {
+                        Sid: Depotauszuege,
+                        Action: [
+                           's3:PutObject',
+                           's3:PutObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/Depotauszüge/?????????/20??-??-??.pdf'
+                           },
+                        ],
+                        Condition: {
+                           'ForAllValues:StringLike': {
+                              's3:RequestObjectTagKeys': [
+                                 Bank,
+                                 date,
+                                 years,
+                              ],
+                           },
+                           StringEquals: {
+                              's3:RequestObjectTag/Bank': [
+                                 DKB,
+                              ],
+                           },
+                           StringLike: {
+                              's3:RequestObjectTag/date': [
+                                 '20??.??.??',
+                              ],
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
+                           },
+                        },
+                        Effect: Allow,
+                     },
+                     {
+                        Sid: Entgeltaufstellungen,
+                        Action: [
+                           's3:PutObject',
+                           's3:PutObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/Entgeltaufstellungen/??????????/20??.pdf'
+                           },
+                        ],
+                        Condition: {
+                           'ForAllValues:StringLike': {
+                              's3:RequestObjectTagKeys': [
+                                 Bank,
+                                 years,
+                              ],
+                           },
+                           StringEquals: {
+                              's3:RequestObjectTag/Bank': [
+                                 DKB,
+                              ],
+                           },
+                           StringLike: {
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
                            },
                         },
                         Effect: Allow,
@@ -207,7 +278,9 @@ Resources:
                               ],
                            },
                            StringLike: {
-                              's3:RequestObjectTag/years': '20??',
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
                            },
                         },
                         Effect: Allow,
@@ -236,7 +309,10 @@ Resources:
                               ],
                            },
                            StringLike: {
-                              's3:RequestObjectTag/years': '20??',
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                                 '20?? 20??',
+                              ],
                            },
                         },
                         Effect: Allow,
@@ -265,7 +341,10 @@ Resources:
                               ],
                            },
                            StringLike: {
-                              's3:RequestObjectTag/years': '20??',
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                                 '20?? 20??',
+                              ],
                            },
                         },
                         Effect: Allow,
@@ -294,7 +373,9 @@ Resources:
                               ],
                            },
                            StringLike: {
-                              's3:RequestObjectTag/years': '20??',
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
                            },
                         },
                         Effect: Allow,
@@ -318,8 +399,12 @@ Resources:
                               ],
                            },
                            StringLike: {
-                              's3:RequestObjectTag/PLZ': '?????',
-                              's3:RequestObjectTag/years': '20??',
+                              's3:RequestObjectTag/PLZ': [
+                                 '?????',
+                              ],
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
                            },
                         },
                         Effect: Allow,
@@ -345,13 +430,145 @@ Resources:
                            },
                            StringEquals: {
                               's3:RequestObjectTag/deductable': [
-                                 no,
-                                 yes,
+                                 'no',
+                                 'yes',
                               ],
                            },
                            StringLike: {
-                              's3:RequestObjectTag/date': '20??.??.??',
-                              's3:RequestObjectTag/years': '20??',
+                              's3:RequestObjectTag/date': [
+                                 '20??.??.??',
+                              ],
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
+                           },
+                        },
+                        Effect: Allow,
+                     },
+                     {
+                        Sid: SCHUFADatenkopien,
+                        Action: [
+                           's3:PutObject',
+                           's3:PutObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/SCHUFA/Datenkopien/20??-??-??.zip'
+                           },
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/SCHUFA/Datenkopien/20??-??-??/??.jpeg'
+                           },
+                        ],
+                        Condition: {
+                           'ForAllValues:StringLike': {
+                              's3:RequestObjectTagKeys': [
+                                 date,
+                                 years,
+                              ],
+                           },
+                           StringLike: {
+                              's3:RequestObjectTag/date': [
+                                 '20??.??.??',
+                              ],
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
+                           },
+                        },
+                        Effect: Allow,
+                     },
+                     {
+                        Sid: Sozialversicherung,
+                        Action: [
+                           's3:PutObject',
+                           's3:PutObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/Sozialversicherung/20??-??-??.pdf'
+                           },
+                        ],
+                        Condition: {
+                           'ForAllValues:StringLike': {
+                              's3:RequestObjectTagKeys': [
+                                 date,
+                                 Grund,
+                                 years,
+                              ],
+                           },
+                           StringEquals: {
+                              's3:RequestObjectTag/Grund': [
+                                 Anmeldung,
+                                 Jahresmeldung,
+                              ],
+                           },
+                           StringLike: {
+                              's3:RequestObjectTag/date': [
+                                 '20??.??.??',
+                              ],
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
+                           },
+                        },
+                        Effect: Allow,
+                     },
+                     {
+                        Sid: Steuerbescheide,
+                        Action: [
+                           's3:PutObject',
+                           's3:PutObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/Steuerbescheide/20??.pdf'
+                           },
+                        ],
+                        Condition: {
+                           'ForAllValues:StringLike': {
+                              's3:RequestObjectTagKeys': [
+                                 years,
+                              ],
+                           },
+                           StringLike: {
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
+                           },
+                        },
+                        Effect: Allow,
+                     },
+                     {
+                        Sid: Zuzahlungsquittungen,
+                        Action: [
+                           's3:PutObject',
+                           's3:PutObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/Zuzahlungsquittungen/20??-??-??.pdf'
+                           },
+                        ],
+                        Condition: {
+                           'ForAllValues:StringLike': {
+                              's3:RequestObjectTagKeys': [
+                                 date,
+                                 deductable,
+                                 years,
+                              ],
+                           },
+                           StringEquals: {
+                              's3:RequestObjectTag/deductable': [
+                                 'yes',
+                              ],
+                           },
+                           StringLike: {
+                              's3:RequestObjectTag/date': [
+                                 '20??.??.??',
+                              ],
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
                            },
                         },
                         Effect: Allow,
