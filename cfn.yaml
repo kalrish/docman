@@ -573,6 +573,53 @@ Resources:
                         },
                         Effect: Allow,
                      },
+                     {
+                        Sid: Wertpapierabrechnungen,
+                        Action: [
+                           's3:PutObject',
+                           's3:PutObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/Wertpapierabrechnungen/?????????/*.pdf'
+                           },
+                        ],
+                        Condition: {
+                           'ForAllValues:StringLike': {
+                              's3:RequestObjectTagKeys': [
+                                 date,
+                                 Bank,
+                                 ISIN,
+                                 Umsatzart,
+                                 years,
+                              ],
+                           },
+                           StringEquals: {
+                              's3:RequestObjectTag/Bank': [
+                                 DKB,
+                              ],
+                              's3:RequestObjectTag/Umsatzart': [
+                                 Kauf,
+                                 Verkauf,
+                              ],
+                           },
+                           StringLike: {
+                              's3:RequestObjectTag/date': [
+                                 '20??.??.??',
+                              ],
+                              's3:RequestObjectTag/ISIN': [
+                                 'DE??????????',
+                                 'FR??????????',
+                                 'LU??????????',
+                                 'US??????????',
+                              ],
+                              's3:RequestObjectTag/years': [
+                                 '20??',
+                              ],
+                           },
+                        },
+                        Effect: Allow,
+                     },
                   ],
                },
             },
