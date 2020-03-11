@@ -153,7 +153,43 @@ Resources:
          },
          Policies: [
             {
-               PolicyName: documents,
+               PolicyName: read,
+               PolicyDocument: {
+                  Version: 2012-10-17,
+                  Statement: [
+                     {
+                        Sid: Bucket,
+                        Action: [
+                           's3:ListBucket',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::GetAtt': [
+                                 Bucket,
+                                 Arn,
+                              ],
+                           },
+                        ],
+                        Effect: Allow,
+                     },
+                     {
+                        Sid: Objects,
+                        Action: [
+                           's3:GetObject',
+                           's3:GetObjectTagging',
+                        ],
+                        Resource: [
+                           {
+                              'Fn::Sub': '${Bucket.Arn}/*'
+                           },
+                        ],
+                        Effect: Allow,
+                     },
+                  ],
+               },
+            },
+            {
+               PolicyName: write,
                PolicyDocument: {
                   Version: 2012-10-17,
                   Statement: [
