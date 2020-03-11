@@ -1,0 +1,10 @@
+---
+
+aws:
+   credentials:
+      mode: null
+      parameters:
+         profile_name: null
+   bucket: null
+
+log: critical
