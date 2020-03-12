@@ -53,6 +53,20 @@ document types:
          - bank
          - oneyear
 
+   EaS:
+
+      full name:
+         singular: Erträgnisaufstellung
+         plural: Erträgnisaufstellungen
+
+      prefix: Erträgnisaufstellungen
+
+      sub_key: '20??/*'
+
+      tags:
+         - bank
+         - oneyear
+
    gHaR:
 
       full name:
