@@ -1,6 +1,6 @@
 import logging
 
-import docman.cli.argparsing
+import docman.cli.argparsing.date
 import docman.cli.subcommands.upload
 
 
@@ -17,11 +17,10 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance = super(
-            Command,
-            self,
         )
 
-        superinstance.add_common_arguments(
+        superinstance.__init__(
+            config,
             parser,
         )
 
@@ -37,7 +36,7 @@ class Command(docman.cli.subcommands.upload.Command):
             dest='start_date',
             help='Start date',
             required=True,
-            type=docman.cli.argparsing.date,
+            type=docman.cli.argparsing.date.parser,
         )
 
         parser.add_argument(
@@ -45,7 +44,7 @@ class Command(docman.cli.subcommands.upload.Command):
             dest='end_date',
             help='End date',
             required=True,
-            type=docman.cli.argparsing.date,
+            type=docman.cli.argparsing.date.parser,
         )
 
     def execute(self, args, session):
@@ -62,9 +61,25 @@ class Command(docman.cli.subcommands.upload.Command):
         tags = dict(
         )
 
+        start_year_s = args.start_date.strftime(
+            '%Y',
+        )
+
+        start_year = args.start_date.year
+        end_year = args.end_date.year
+
+        if start_year == end_year:
+            years_tag_value = start_year_s
+        else:
+            end_year_s = args.end_date.strftime(
+                '%Y',
+            )
+
+            years_tag_value = f'{ start_year_s } { end_year_s }'
+
+        tags['years'] = years_tag_value
+
         superinstance = super(
-            Command,
-            self,
         )
 
         exit_code = superinstance.execute_common(

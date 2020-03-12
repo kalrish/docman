@@ -21,7 +21,13 @@ storage_classes = {
 
 
 def upload(bucket, content_type, key, path, session, tags):
-    if not content_type:
+    if content_type:
+        logger.debug(
+            '%s: provided Content-Type: %s',
+            path,
+            content_type,
+        )
+    else:
         # Guess Content-Type based on file name
 
         return_tuple = mimetypes.guess_type(
@@ -32,79 +38,97 @@ def upload(bucket, content_type, key, path, session, tags):
         mime_type = return_tuple[0]
 
         logger.debug(
-            '%s: guess MIME type: %s',
+            '%s: guessed MIME type: %s',
             path,
             mime_type,
         )
 
         content_type = mime_type
-#        try:
-#            content_type = content_type_map[file_name_extension]
-#        except KeyError:
-#            e = RuntimeError(
-#                'cannot determine Content-Type of file',
-#            )
-#
-#            raise e
 
-    if content_type:
-        s3 = session.client(
-            's3',
+    s3 = session.client(
+        's3',
+    )
+
+    try:
+        s3.head_object(
+            Bucket=bucket,
+            Key=key,
         )
-
-        try:
-            s3.head_object(
-                Bucket=bucket,
-                Key=key,
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == '404':
+            logger.debug(
+                'bucket %s does not contain an object with key %s',
+                bucket,
+                key,
             )
-        except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == '404':
-                logger.debug(
-                    'bucket %s does not contain an object with key %s',
-                    bucket,
-                    key,
-                )
 
-                f = open(
-                    path,
-                    'rb',
-                )
+            logger.info(
+                '%s: key: %s',
+                path,
+                key,
+            )
 
-                fd = f.fileno(
-                )
+            f = open(
+                path,
+                'rb',
+            )
 
-                stat_results = os.stat(
-                    fd,
-                )
+            fd = f.fileno(
+            )
 
-                size = stat_results.st_size
+            stat_results = os.stat(
+                fd,
+            )
 
-                logger.debug(
-                    '%s: size: %i',
-                    path,
-                    size,
-                )
+            size = stat_results.st_size
 
-                file_is_big = size >= 128000
+            logger.debug(
+                '%s: size: %i bytes',
+                path,
+                size,
+            )
 
-                storage_class = storage_classes[file_is_big]
+            file_is_big = size >= 128000
 
-                tag_pairs = [
-                    f'{key}={value}'
-                    for key, value in tags.items()
-                ]
+            storage_class = storage_classes[file_is_big]
 
-                tagging = '&'.join(
-                    tag_pairs,
-                )
+            logger.info(
+                '%s: storage class: %s',
+                path,
+                storage_class,
+            )
 
+            tag_pairs = list(
+            )
+
+            iterator = tags.items(
+            )
+
+            for tag_key, tag_value in iterator:
                 logger.info(
-                    'document %s will be uploaded to %s using storage class %s',
+                    '%s: tag: %s = %s',
                     path,
-                    key,
-                    storage_class,
+                    tag_key,
+                    tag_value,
                 )
 
+                tag_pair = f'{ tag_key }={ tag_value }'
+
+                tag_pairs.append(
+                    tag_pair,
+                )
+
+            tagging = '&'.join(
+                tag_pairs,
+            )
+
+            logger.debug(
+                '%s: tagging: %s',
+                path,
+                tagging,
+            )
+
+            try:
                 s3.put_object(
                     Body=f,
                     Bucket=bucket,
@@ -113,17 +137,34 @@ def upload(bucket, content_type, key, path, session, tags):
                     StorageClass=storage_class,
                     Tagging=tagging,
                 )
-            else:
-                raise e
+            except botocore.exceptions.ClientError as original_exception:
+                error_code = original_exception.response['Error']['Code']
+
+                logger.error(
+                    '%s: PutObject: error: %s',
+                    path,
+                    error_code,
+                )
+
+                if error_code == 'AccessDenied':
+                    e = docman.upload.exceptions.AccessDenied(
+                        original_exception=original_exception,
+                    )
+
+                    raise e
+                else:
+                    raise original_exception
         else:
-            logger.error(
-                'bucket %s already contains an object with key %s',
-                bucket,
-                key,
-            )
-
-            e = docman.upload.exceptions.AlreadyExists(
-                key=key,
-            )
-
             raise e
+    else:
+        logger.error(
+            'bucket %s already contains an object with key %s',
+            bucket,
+            key,
+        )
+
+        e = docman.upload.exceptions.AlreadyExists(
+            key=key,
+        )
+
+        raise e

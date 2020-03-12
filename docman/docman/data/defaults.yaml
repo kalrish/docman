@@ -1,10 +1,13 @@
 ---
 
 aws:
+   buckets:
+      cloudformation templates: null
+      documents: null
    credentials:
       mode: null
       parameters:
-         profile_name: null
-   bucket: null
+         profile name: null
+   region: null
 
 log: critical

@@ -4,7 +4,10 @@ import docman.cli.subcommands.upload
 
 
 class Command(docman.cli.subcommands.upload.Command):
-    help = 'Gehaltsabrechnung'
+    common_arguments = [
+        'year',
+    ]
+    help = 'Steuerbescheid'
 
     def __init__(self, config, parser):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
@@ -20,37 +23,15 @@ class Command(docman.cli.subcommands.upload.Command):
             parser,
         )
 
-        parser.add_argument(
-            '--employer',
-            choices=[
-                'Smaato',
-            ],
-            dest='employer',
-            help='Arbeitgeber',
-            required=True,
-        )
-
-        parser.add_argument(
-            '--month',
-            dest='month',
-            help='Month',
-            required=True,
-        )
-
-        parser.add_argument(
-            '--year',
-            dest='year',
-            help='Year',
-            required=True,
-        )
-
     def execute(self, args, session):
-        key = f'Gehaltsabrechnungen/{ args.year }/{ args.month }.pdf'
+        year = args.year.strftime(
+            '%Y',
+        )
+
+        key = f'Steuerbescheide/{ year }.pdf'
 
         tags = dict(
         )
-
-        tags['Arbeitgeber'] = args.employer
 
         superinstance = super(
         )

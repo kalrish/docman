@@ -6,6 +6,8 @@ import pkgutil
 import boto3
 
 import docman.cli
+import docman.cli.argparsing.log_level
+import docman.cli.logging
 import docman.config
 
 logger = logging.getLogger(
@@ -24,12 +26,14 @@ def entry_point():
     args = parser.parse_args(
     )
 
-    set_up_logging(
+    docman.cli.logging.set_up_logging(
+        everything=args.log_everything,
         level=args.log_level,
     )
 
     session = boto3.session.Session(
         profile_name=args.aws_profile,
+        region_name=args.aws_region,
     )
 
     instance = args.instance
@@ -57,7 +61,7 @@ def set_up_argument_parser(config):
 
     parser.add_argument(
         '--bucket',
-        default=config['aws']['bucket'],
+        default=config['aws']['buckets']['documents'],
         dest='bucket',
         help='name of S3 bucket',
         metavar='NAME',
@@ -66,25 +70,34 @@ def set_up_argument_parser(config):
     parser.add_argument(
         '-l',
         '--log',
-        choices=[
-            'critical',
-            'debug',
-            'error',
-            'info',
-            'warning',
-        ],
         default=config['log'],
         dest='log_level',
         help='log level',
-        # metavar='LEVEL',
+        type=docman.cli.argparsing.log_level.parser,
+        metavar='LEVEL',
     )
 
     parser.add_argument(
-        '-p',
-        '--profile',
-        default=config['aws']['credentials']['parameters']['profile_name'],
+        '-L',
+        '--log-everything',
+        action='store_true',
+        default=False,
+        dest='log_everything',
+        help='emit logs from third-party code too',
+    )
+
+    parser.add_argument(
+        '--aws-profile',
+        default=config['aws']['credentials']['parameters']['profile name'],
         dest='aws_profile',
         help='AWS profile',
+    )
+
+    parser.add_argument(
+        '--aws-region',
+        default=config['aws']['region'],
+        dest='aws_region',
+        help='AWS region',
     )
 
     current_path = docman.cli.__path__[0]
@@ -136,17 +149,20 @@ def load_modules(base_path, config, path, subparsers):
             package=__name__,
         )
 
-        parser = subparsers.add_parser(
-            module_name,
-            help=module.Command.help,
-        )
-
-        command = module.Command(
-            config,
-            parser,
-        )
-
         if module_info.ispkg:
+            # subcommand contains subactions or subcommands
+
+            parser = subparsers.add_parser(
+                module_name,
+                formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                help=module.CommandGroup.help,
+            )
+
+            command = module.CommandGroup(
+                config,
+                parser,
+            )
+
             # subcommand contains subactions or subcommands
 
             subsubparsers = parser.add_subparsers(
@@ -172,21 +188,17 @@ def load_modules(base_path, config, path, subparsers):
                 subparsers=subsubparsers,
             )
         else:
+            parser = subparsers.add_parser(
+                module_name,
+                formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                help=module.Command.help,
+            )
+
+            command = module.Command(
+                config,
+                parser,
+            )
+
             parser.set_defaults(
                 instance=command,
             )
-
-
-def set_up_logging(level):
-    level_code = level.upper(
-    )
-
-    logging_level = getattr(
-        logging,
-        level_code,
-    )
-
-    logging.basicConfig(
-        format='%(name)s: %(levelname)s: %(message)s',
-        level=logging_level,
-    )

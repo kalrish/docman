@@ -6,7 +6,7 @@ logger = logging.getLogger(
 
 
 def list_documents(bucket, include_tags, prefix, session):
-    objects = list(
+    objects = dict(
     )
 
     s3 = session.client(
@@ -35,6 +35,11 @@ def list_documents(bucket, include_tags, prefix, session):
         for content in contents:
             key = content['Key']
 
+            obj = dict(
+            )
+
+            obj['Size'] = content['Size']
+
             if include_tags:
                 response = s3.get_object_tagging(
                     Bucket=bucket,
@@ -48,15 +53,8 @@ def list_documents(bucket, include_tags, prefix, session):
                     for tagpair in tagset
                 }
 
-                obj = {
-                    'Key': key,
-                    'Tags': tags,
-                }
-            else:
-                obj = key
+                obj['Tags'] = tags
 
-            objects.append(
-                obj,
-            )
+            objects[key] = obj
 
     return objects

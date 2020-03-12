@@ -12,5 +12,13 @@ class Command(docman.cli.subcommands.upload.Command):
             logger_name,
         )
 
+        superinstance = super(
+        )
+
+        superinstance.__init__(
+            config,
+            parser,
+        )
+
     def execute(self, args):
         return

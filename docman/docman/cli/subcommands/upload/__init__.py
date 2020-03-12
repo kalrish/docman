@@ -1,38 +1,45 @@
-import argparse
 import logging
 
-import docman.cli.argparsing
+import docman.cli.argparsing.date
+import docman.cli.argparsing.year
 import docman.cli.diagnostics
 import docman.globals
 import docman.upload.exceptions
 import docman.upload.main
 
 
-class Command(docman.cli.subcommands.CommandGroup):
+def format_date_tag(date):
+    representation = date.strftime(
+        '%Y.%m.%d',
+    )
+
+    return representation
+
+
+def format_year_tag(date):
+    representation = date.strftime(
+        '%Y',
+    )
+
+    return representation
+
+
+def format_years_tag(dates):
+    representations = map(
+        format_year_tag,
+        dates,
+    )
+
+    representation = ' '.join(
+        representations,
+    )
+
+    return representation
+
+
+class CommandGroup(docman.cli.subcommands.CommandGroup):
     description = 'kind of document'
     help = 'upload a document'
-    common_arguments_definition = {
-        'bank': {
-            'flag_short': 'b',
-            'flag_long': 'bank',
-            'options': {
-                'choices': docman.globals.banks,
-                'dest': 'bank',
-                'help': 'Bank',
-                'required': True,
-            },
-        },
-        'date': {
-            'flag_short': 'd',
-            'flag_long': 'date',
-            'options': {
-                'dest': 'date',
-                'help': 'date',
-                'required': True,
-                'type': docman.cli.argparsing.date,
-            },
-        },
-    }
 
     def __init__(self, config, parser):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
@@ -44,22 +51,75 @@ class Command(docman.cli.subcommands.CommandGroup):
             '--content-type',
             default=None,
             dest='content_type',
-            help='value of Content-Type',  # FIXME: MIME ?
+            help='MIME type',
             metavar='VALUE',
         )
 
-        # FIXME: validate input
-        parser.add_argument(
-            '-y',
-            '--year',
-            action='append',
-            dest='years',
-            help='add a year',
-            metavar='YEAR',
-            required=True,
+
+class Command(docman.cli.subcommands.Command):
+    common_arguments_definition = {
+        'bank': {
+            'flag_short': 'b',
+            'flag_long': 'bank',
+            'options': {
+                'choices': docman.globals.banks,
+                'help': 'Bank',
+                'metavar': 'BANK',
+                'required': True,
+            },
+            'tags': {
+                'Bank': None,
+            },
+        },
+        'date': {
+            'flag_short': 'd',
+            'flag_long': 'date',
+            'options': {
+                'help': 'date',
+                'metavar': 'DAY.MONTH.YEAR',
+                'required': True,
+                'type': docman.cli.argparsing.date.parser,
+            },
+            'tags': {
+                'date': format_date_tag,
+                'years': format_year_tag,
+            },
+        },
+        'year': {
+            'flag_short': 'y',
+            'flag_long': 'year',
+            'options': {
+                'help': 'year',
+                'metavar': 'YEAR',
+                'required': True,
+                'type': docman.cli.argparsing.year.parser,
+            },
+            'tags': {
+                'years': format_year_tag,
+            },
+        },
+        'years': {
+            'flag_short': 'y',
+            'flag_long': 'year',
+            'options': {
+                'action': 'append',
+                'help': 'add a year',
+                'metavar': 'YEAR',
+                'required': True,
+                'type': docman.cli.argparsing.year.parser,
+            },
+            'tags': {
+                'years': format_years_tag,
+            },
+        },
+    }
+
+    def __init__(self, config, parser):
+        logger_name = f'{ __name__ }.{ Command.__name__ }'
+        self.logger = logging.getLogger(
+            logger_name,
         )
 
-    def add_common_arguments(self, parser):
         parser.add_argument(
             'file',
             help='path to the file to upload',
@@ -83,39 +143,42 @@ class Command(docman.cli.subcommands.CommandGroup):
                 parser.add_argument(
                     flag_short,
                     flag_long,
+                    dest=common_argument,
                     **argument['options'],
                 )
 
     def execute_common(self, args, key, session, tags):
-        if 'bank' in args:
-            tag_value = args.bank
-            self.logger.debug(
-                'tag: %s: value: %s',
-                'Bank',
-                tag_value,
-            )
-            tags['Bank'] = tag_value
+        for common_argument_name, common_argument_definition in self.__class__.common_arguments_definition.items():
+            try:
+                argument_value = getattr(
+                    args,
+                    common_argument_name,
+                )
+            except AttributeError:
+                pass
+            else:
+                common_argument_tags = common_argument_definition['tags']
 
-        if 'date' in args:
-            tag_value = args.date.strftime(
-                '%Y.%m.%d',
-            )
-            self.logger.debug(
-                'tag: %s: value: %s',
-                'date',
-                tag_value,
-            )
-            tags['date'] = tag_value
+                for tag_key, tag_value_formatter in common_argument_tags.items():
+                    if tag_value_formatter:
+                        tag_value = tag_value_formatter(
+                            argument_value,
+                        )
+                    else:
+                        tag_value = argument_value
 
-        tag_value = ' '.join(
-            args.years,
-        )
-        self.logger.debug(
-            'tag: %s: value: %s',
-            'years',
-            tag_value,
-        )
-        tags['years'] = tag_value
+                    already_set = tag_key in tags
+                    not_already_set = not already_set
+
+                    assert not_already_set
+
+                    self.logger.debug(
+                        'tag: %s = %s',
+                        tag_key,
+                        tag_value,
+                    )
+
+                    tags[tag_key] = tag_value
 
         try:
             docman.upload.main.upload(
@@ -130,7 +193,7 @@ class Command(docman.cli.subcommands.CommandGroup):
             exit_code = 1
         except docman.upload.exceptions.AlreadyExists as e:
             docman.cli.diagnostics.report(
-                'an object with key {} already exists',
+                'An object with key {} already exists',
                 key,
             )
 
@@ -141,15 +204,16 @@ class Command(docman.cli.subcommands.CommandGroup):
 #            )
 #
 #            exit_code = 1
-#        except docman.upload.CannotUpload:
-#            print(
-#                'cannot upload!',
-#            )
-#
-#            exit_code = 1
+        except docman.upload.exceptions.AccessDenied:
+            docman.cli.diagnostics.report(
+                'Access denied!',
+            )
+
+            exit_code = 1
         else:
             docman.cli.diagnostics.report(
-                'document uploaded; key: {}',
+                'Document uploaded to {}/{}',
+                args.bucket,
                 key,
             )
 

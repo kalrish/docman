@@ -1,9 +1,11 @@
 import collections
+import importlib.resources
 import logging
-import pkg_resources
 
 import xdg.BaseDirectory
 import yaml
+
+import docman.data
 
 logger = logging.getLogger(
     __name__,
@@ -11,9 +13,10 @@ logger = logging.getLogger(
 
 
 def load_defaults():
-    f = pkg_resources.resource_stream(
-        __name__,
-        'data/defaults.yaml',
+    f = importlib.resources.open_text(
+        encoding='utf-8',
+        package='docman.data',
+        resource='defaults.yaml',
     )
 
     document = yaml.safe_load(

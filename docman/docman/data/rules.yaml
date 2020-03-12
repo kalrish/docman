@@ -1,0 +1,291 @@
+---
+
+
+allowed file name extensions:
+   - jpeg
+   - pdf
+   - png
+   - zip
+
+
+document types:
+
+   AGB:
+
+      full name:
+         singular: Arbeitgeberbescheinigung
+         plural: Arbeitgeberbescheinigungen
+
+      prefix: Arbeitgeberbescheinigungen
+
+      sub_key: '20??-??-??'
+
+      tags:
+         - employer
+         - oneyear
+
+   DaZ:
+
+      full name:
+         singular: Depotauszug
+         plural: Depotauszüge
+
+      prefix: Depotauszüge
+
+      sub_key: '?????????/20??-??-??'
+
+      tags:
+         - bank
+         - date
+         - oneyear
+
+   eGaS:
+
+      full name:
+         singular: Entgeltaufstellung
+         plural: Entgeltaufstellungen
+
+      prefix: Entgeltaufstellungen
+
+      sub_key: '??????????/20??'
+
+      tags:
+         - bank
+         - oneyear
+
+   gHaR:
+
+      full name:
+         singular: Gehaltsabrechnung
+         plural: Gehaltsabrechnungen
+
+      prefix: Gehaltsabrechnungen
+
+      sub_key: '20??/??'
+
+      tags:
+         - employer
+         - oneyear
+
+   KaZ:
+
+      full name:
+         singular: Kontoauszug
+         plural: Kontoauszüge
+
+      prefix: Kontoauszüge
+
+      sub_key: '??????????/20??-??-??_20??-??-??'
+
+      tags:
+         - bank
+         - oneortwoyears
+
+   KKaR:
+
+      full name:
+         singular: Kreditkartenabrechnung
+         plural: Kreditkartenabrechnungen
+
+      prefix: Kreditkartenabrechnungen
+
+      sub_key: '*/20??-??-??_20??-??-??'
+
+      tags:
+         - bank
+         - oneortwoyears
+
+   LSB:
+
+      full name:
+         singular: Lohnsteuerbescheinigung
+         plural: Lohnsteuerbescheinigungen
+
+      prefix: Lohnsteuerbescheinigungen
+
+      sub_key: '20??'
+
+      tags:
+         - employer
+         - oneyear
+
+   MB:
+
+      full name:
+         singular: Meldebestätigung
+         plural: Meldebestätigungen
+
+      prefix: Meldebestätigungen
+
+      sub_key: '*'
+
+      tags:
+         - oneyear
+         - plz
+
+   R:
+
+      full name:
+         singular: Rechnung
+         plural: Rechnungen
+
+      prefix: Rechnungen
+
+      sub_key: '*/*'
+
+      tags:
+         - date
+         - deductable
+         - oneyear
+
+   SCHUFADK:
+
+      full name:
+         singular: SCHUFA Datenkopie
+         plural: SCHUFA Datenkopien
+
+      prefix: SCHUFA/Datenkopien
+
+      sub_key: '20??-??-??'
+
+      tags:
+         - date
+         - oneyear
+
+   SBeid:
+
+      full name:
+         singular: Steuerbescheid
+         plural: Steuerbescheide
+
+      prefix: Steuerbescheide
+
+      sub_key: '20??'
+
+      tags:
+         - oneyear
+
+   SBung:
+
+      full name:
+         singular: Steuerbescheinigung
+         plural: Steuerbescheinigungen
+
+      prefix: Steuerbescheinigungen
+
+      sub_key: '20??/*'
+
+      tags:
+         - bank
+         - oneyear
+
+   SV:
+
+      full name:
+         singular: Sozialversicherung
+         plural: FIXME
+
+      prefix: Sozialversicherung
+
+      sub_key: '20??-??-??'
+
+      tags:
+         - date
+         - oneyear
+         - sozialversicherungmeldungsgrund
+
+   zZQ:
+
+      full name:
+         singular: Zuzahlungsquittung
+         plural: Zuzahlungsquittungen
+
+      prefix: Zuzahlungsquittungen
+
+      sub_key: '20??-??-??'
+
+      tags:
+         - date
+         - deductable
+         - oneyear
+
+   WPaR:
+
+      full name:
+         singular: Wertpapierabrechnung
+         plural: Wertpapierabrechnungen
+
+      prefix: Wertpapierabrechnungen
+
+      sub_key: '?????????/*'
+
+      tags:
+         - bank
+         - date
+         - isin
+         - oneyear
+         - transaction_type
+
+tags:
+
+   bank:
+      key: Bank
+      values:
+         - DKB
+
+   date:
+      key: date
+      patterns:
+         - '20??.??.??'
+
+   deductable:
+      key: deductable
+      values:
+         - 'no'
+         - 'yes'
+
+   employer:
+      key: Arbeitgeber
+      values:
+         - Smaato
+
+   isin:
+      key: ISIN
+      patterns:
+         - 'DE??????????'
+         - 'FR??????????'
+         - 'LU??????????'
+         - 'US??????????'
+
+   multipleyears:
+      key: years
+      patterns:
+         - '20??*'
+
+   oneyear:
+      key: years
+      patterns:
+         - '20??'
+
+   oneortwoyears:
+      key: years
+      patterns:
+         - '20??'
+         - '20?? 20??'
+
+   plz:
+      key: PLZ
+      patterns:
+         - '?????'
+
+   sozialversicherungmeldungsgrund:
+      key: Grund
+      values:
+         - Anmeldung
+         - Jahresmeldung
+
+   transaction_type:
+      key: Umsatzart
+      values:
+         - Kauf
+         - Verkauf

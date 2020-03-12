@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import logging
 
@@ -6,7 +7,7 @@ logger = logging.getLogger(
 )
 
 
-def date(s):
+def parser(s):
     try:
         date = datetime.datetime.strptime(
             s,
@@ -20,5 +21,5 @@ def date(s):
         )
 
         raise e
-
-    return date
+    else:
+        return date

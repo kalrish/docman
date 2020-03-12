@@ -16,11 +16,10 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance = super(
-            Command,
-            self,
         )
 
-        superinstance.add_common_arguments(
+        superinstance.__init__(
+            config,
             parser,
         )
 
@@ -58,8 +57,6 @@ class Command(docman.cli.subcommands.upload.Command):
         tags['deductable'] = args.deductable
 
         superinstance = super(
-            Command,
-            self,
         )
 
         exit_code = superinstance.execute_common(
