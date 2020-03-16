@@ -166,7 +166,9 @@ class Command(docman.cli.subcommands.Command):
 
                     tags[tag_key] = tag_value
 
-        key = f'{ self.definition.prefix }/{ key }'
+        prefix = self.definition['prefix']
+
+        key = f'{ prefix }/{ key }'
 
         try:
             docman.upload.main.upload(
