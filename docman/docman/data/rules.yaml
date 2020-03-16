@@ -8,6 +8,10 @@ allowed file name extensions:
    - zip
 
 
+banks:
+   - DKB
+
+
 document types:
 
    AGB:

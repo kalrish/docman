@@ -3,7 +3,7 @@ import logging
 import docman.cli.argparsing.date
 import docman.cli.argparsing.year
 import docman.cli.diagnostics
-import docman.globals
+import docman.data
 import docman.upload.exceptions
 import docman.upload.main
 
@@ -62,7 +62,7 @@ class Command(docman.cli.subcommands.Command):
             'flag_short': 'b',
             'flag_long': 'bank',
             'options': {
-                'choices': docman.globals.banks,
+                'choices': docman.data.rules['banks'],
                 'help': 'Bank',
                 'metavar': 'BANK',
                 'required': True,
@@ -114,38 +114,24 @@ class Command(docman.cli.subcommands.Command):
         },
     }
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
         )
 
-        parser.add_argument(
-            'file',
-            help='path to the file to upload',
-            metavar='PATH',
+        subclass_module = self.__class__.__module__
+
+        subclass_module_name_parts = subclass_module.rsplit(
+            maxsplit=1,
+            sep='.',
         )
 
-        try:
-            common_arguments = self.common_arguments
-        except AttributeError:
-            pass
-        else:
-            for common_argument in self.common_arguments:
-                argument = self.__class__.common_arguments_definition[common_argument]
+        subclass_module_name = subclass_module_name_parts[1]
 
-                flag_short = argument['flag_short']
-                flag_long = argument['flag_long']
+        self.definition = docman.data.rules['document types'][subclass_module_name]
 
-                flag_short = f'-{ flag_short }'
-                flag_long = f'--{ flag_long }'
-
-                parser.add_argument(
-                    flag_short,
-                    flag_long,
-                    dest=common_argument,
-                    **argument['options'],
-                )
+        self.help = self.definition['full name']['singular']
 
     def execute_common(self, args, key, session, tags):
         for common_argument_name, common_argument_definition in self.__class__.common_arguments_definition.items():
@@ -180,6 +166,8 @@ class Command(docman.cli.subcommands.Command):
 
                     tags[tag_key] = tag_value
 
+        key = f'{ self.definition.prefix }/{ key }'
+
         try:
             docman.upload.main.upload(
                 bucket=args.bucket,
@@ -194,7 +182,7 @@ class Command(docman.cli.subcommands.Command):
         except docman.upload.exceptions.AlreadyExists as e:
             docman.cli.diagnostics.report(
                 'An object with key {} already exists',
-                key,
+                e.key,
             )
 
             exit_code = 1
@@ -220,3 +208,31 @@ class Command(docman.cli.subcommands.Command):
             exit_code = 0
 
         return exit_code
+
+    def setup(self, config, parser):
+        parser.add_argument(
+            'file',
+            help='path to the file to upload',
+            metavar='PATH',
+        )
+
+        try:
+            common_arguments = self.common_arguments
+        except AttributeError:
+            pass
+        else:
+            for common_argument in common_arguments:
+                argument = self.__class__.common_arguments_definition[common_argument]
+
+                flag_short = argument['flag_short']
+                flag_long = argument['flag_long']
+
+                flag_short = f'-{ flag_short }'
+                flag_long = f'--{ flag_long }'
+
+                parser.add_argument(
+                    flag_short,
+                    flag_long,
+                    dest=common_argument,
+                    **argument['options'],
+                )

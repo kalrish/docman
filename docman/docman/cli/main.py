@@ -188,15 +188,22 @@ def load_modules(base_path, config, path, subparsers):
                 subparsers=subsubparsers,
             )
         else:
+            command = module.Command(
+            )
+
+            try:
+                a = command.help
+            except AttributeError:
+                print(module_name)
             parser = subparsers.add_parser(
                 module_name,
                 formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-                help=module.Command.help,
+                help=command.help,
             )
 
-            command = module.Command(
-                config,
-                parser,
+            command.setup(
+                config=config,
+                parser=parser,
             )
 
             parser.set_defaults(

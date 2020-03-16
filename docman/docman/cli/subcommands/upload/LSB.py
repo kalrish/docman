@@ -4,9 +4,7 @@ import docman.cli.subcommands.upload
 
 
 class Command(docman.cli.subcommands.upload.Command):
-    help = 'Lohnsteuerbescheinigung'
-
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -16,9 +14,16 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance.__init__(
-            config,
-            parser,
         )
 
     def execute(self, args):
         return
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
+            config,
+            parser,
+        )

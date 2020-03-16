@@ -7,9 +7,8 @@ class Command(docman.cli.subcommands.upload.Command):
     common_arguments = [
         'date',
     ]
-    help = 'Rechnung'
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -19,6 +18,33 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance.__init__(
+        )
+
+    def execute(self, args, session):
+        key = f'{ args.merchant }/{ args.id }.pdf'
+
+        tags = dict(
+        )
+
+        tags['deductable'] = args.deductable
+
+        superinstance = super(
+        )
+
+        exit_code = superinstance.execute_common(
+            args=args,
+            key=key,
+            session=session,
+            tags=tags,
+        )
+
+        return exit_code
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
             config,
             parser,
         )
@@ -47,23 +73,3 @@ class Command(docman.cli.subcommands.upload.Command):
             help='Händler',
             required=True,
         )
-
-    def execute(self, args, session):
-        key = f'Rechnungen/{ args.merchant }/{ args.id }.pdf'
-
-        tags = dict(
-        )
-
-        tags['deductable'] = args.deductable
-
-        superinstance = super(
-        )
-
-        exit_code = superinstance.execute_common(
-            args=args,
-            key=key,
-            session=session,
-            tags=tags,
-        )
-
-        return exit_code

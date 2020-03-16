@@ -9,9 +9,13 @@ class CommandGroup(metaclass=abc.ABCMeta):
 
 class Command(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def __init__(self, parser):
+    def __init__(self):
         pass
 
     @abc.abstractmethod
     def execute(self, args, session):
+        pass
+
+    @abc.abstractmethod
+    def setup(self, config, parser):
         pass

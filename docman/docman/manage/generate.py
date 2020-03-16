@@ -1,8 +1,7 @@
-import importlib.resources
 import json
 import logging
 
-import yaml
+import docman.data
 
 logger = logging.getLogger(
     __name__,
@@ -15,22 +14,13 @@ upload_actions = [
 
 
 def generate(bucket_name):
-    f = importlib.resources.open_text(
-        encoding='utf-8',
-        package='docman.data',
-        resource='cft.yaml',
-    )
-
-    template_data = yaml.safe_load(
-        f,
-    )
+    template_data = docman.data.cft
 
     template_data['Parameters']['BucketName']['Default'] = bucket_name
 
     statements = template_data['Resources']['WritePolicy']['Properties']['PolicyDocument']['Statement']
 
-    rules = load_rules(
-    )
+    rules = docman.data.rules
 
     tag_definitions = rules['tags']
 
@@ -120,20 +110,6 @@ def generate(bucket_name):
     )
 
     return template
-
-
-def load_rules():
-    f = importlib.resources.open_text(
-        encoding='utf-8',
-        package='docman.data',
-        resource='rules.yaml',
-    )
-
-    rules = yaml.safe_load(
-        f,
-    )
-
-    return rules
 
 
 def tags2iam(definitions):

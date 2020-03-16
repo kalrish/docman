@@ -4,9 +4,7 @@ import docman.cli.subcommands.upload
 
 
 class Command(docman.cli.subcommands.upload.Command):
-    help = 'Gehaltsabrechnung'
-
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -16,6 +14,33 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance.__init__(
+        )
+
+    def execute(self, args, session):
+        key = f'{ args.year }/{ args.month }.pdf'
+
+        tags = dict(
+        )
+
+        tags['Arbeitgeber'] = args.employer
+
+        superinstance = super(
+        )
+
+        exit_code = superinstance.execute_common(
+            args=args,
+            key=key,
+            session=session,
+            tags=tags,
+        )
+
+        return exit_code
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
             config,
             parser,
         )
@@ -43,23 +68,3 @@ class Command(docman.cli.subcommands.upload.Command):
             help='Year',
             required=True,
         )
-
-    def execute(self, args, session):
-        key = f'Gehaltsabrechnungen/{ args.year }/{ args.month }.pdf'
-
-        tags = dict(
-        )
-
-        tags['Arbeitgeber'] = args.employer
-
-        superinstance = super(
-        )
-
-        exit_code = superinstance.execute_common(
-            args=args,
-            key=key,
-            session=session,
-            tags=tags,
-        )
-
-        return exit_code

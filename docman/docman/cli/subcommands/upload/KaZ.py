@@ -8,9 +8,8 @@ class Command(docman.cli.subcommands.upload.Command):
     common_arguments = [
         'bank',
     ]
-    help = 'Kontoauszug'
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -20,31 +19,6 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance.__init__(
-            config,
-            parser,
-        )
-
-        parser.add_argument(
-            '--konto',
-            dest='account',
-            help='Kontonummer',
-            required=True,
-        )
-
-        parser.add_argument(
-            '--from',
-            dest='start_date',
-            help='Start date',
-            required=True,
-            type=docman.cli.argparsing.date.parser,
-        )
-
-        parser.add_argument(
-            '--to',
-            dest='end_date',
-            help='End date',
-            required=True,
-            type=docman.cli.argparsing.date.parser,
         )
 
     def execute(self, args, session):
@@ -56,7 +30,7 @@ class Command(docman.cli.subcommands.upload.Command):
             '%Y-%m-%d',
         )
 
-        key = f'Kontoauszüge/{ args.account }/{ start_date }_{ end_date }.pdf'
+        key = f'{ args.account }/{ start_date }_{ end_date }.pdf'
 
         tags = dict(
         )
@@ -90,3 +64,35 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         return exit_code
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
+            config,
+            parser,
+        )
+
+        parser.add_argument(
+            '--konto',
+            dest='account',
+            help='Kontonummer',
+            required=True,
+        )
+
+        parser.add_argument(
+            '--from',
+            dest='start_date',
+            help='Start date',
+            required=True,
+            type=docman.cli.argparsing.date.parser,
+        )
+
+        parser.add_argument(
+            '--to',
+            dest='end_date',
+            help='End date',
+            required=True,
+            type=docman.cli.argparsing.date.parser,
+        )

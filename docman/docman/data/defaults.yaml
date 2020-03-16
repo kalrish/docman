@@ -9,5 +9,7 @@ aws:
       parameters:
          profile name: null
    region: null
+   stack:
+      name: null
 
 log: critical

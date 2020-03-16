@@ -25,6 +25,7 @@ class Command(docman.cli.subcommands.Command):
             },
         },
         'stack_name': {
+            'default': lambda config: config['aws']['stack']['name'],
             'flag_long': 'stack-name',
             'options': {
                 'help': 'name of CloudFormation stack',
@@ -34,23 +35,33 @@ class Command(docman.cli.subcommands.Command):
         },
     }
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
         )
 
+    def setup(self, config, parser):
         try:
             common_arguments = self.common_arguments
         except AttributeError:
             pass
         else:
-            for common_argument in self.common_arguments:
+            for common_argument in common_arguments:
                 argument = self.__class__.common_arguments_definition[common_argument]
 
                 flag_long = argument['flag_long']
 
                 flag_long = f'--{ flag_long }'
+
+                try:
+                    default_lambda = argument['default']
+                except KeyError:
+                    pass
+                else:
+                    argument['options']['default'] = default_lambda(
+                        config,
+                    )
 
                 parser.add_argument(
                     flag_long,

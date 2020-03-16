@@ -8,13 +8,12 @@ class Command(docman.cli.subcommands.upload.Command):
         'bank',
         'date',
     ]
-    help = 'Wertpapierabrechnung'
     transaction_type_conversion = {
         'buy': 'Kauf',
         'sell': 'Verkauf',
     }
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -24,6 +23,34 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance.__init__(
+        )
+
+    def execute(self, args, session):
+        key = f'{ args.depot }/{ args.id }.pdf'
+
+        tags = dict(
+        )
+
+        tags['ISIN'] = args.isin
+        tags['Umsatzart'] = Command.transaction_type_conversion[args.transaction_type]
+
+        superinstance = super(
+        )
+
+        exit_code = superinstance.execute_common(
+            args=args,
+            key=key,
+            session=session,
+            tags=tags,
+        )
+
+        return exit_code
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
             config,
             parser,
         )
@@ -59,24 +86,3 @@ class Command(docman.cli.subcommands.upload.Command):
             help='Umsatzart',
             required=True,
         )
-
-    def execute(self, args, session):
-        key = f'Wertpapierabrechnungen/{ args.depot }/{ args.id }.pdf'
-
-        tags = dict(
-        )
-
-        tags['ISIN'] = args.isin
-        tags['Umsatzart'] = Command.transaction_type_conversion[args.transaction_type]
-
-        superinstance = super(
-        )
-
-        exit_code = superinstance.execute_common(
-            args=args,
-            key=key,
-            session=session,
-            tags=tags,
-        )
-
-        return exit_code

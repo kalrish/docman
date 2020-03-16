@@ -1,5 +1,4 @@
 import collections
-import importlib.resources
 import logging
 
 import xdg.BaseDirectory
@@ -12,31 +11,22 @@ logger = logging.getLogger(
 )
 
 
-def load_defaults():
-    f = importlib.resources.open_text(
-        encoding='utf-8',
-        package='docman.data',
-        resource='defaults.yaml',
-    )
-
-    document = yaml.safe_load(
-        f,
-    )
-
-    return document
-
-
 def merge(source, dest):
     comb = dict(
     )
 
     for k, v in source.items():
-        if isinstance(v, collections.Mapping):
+        is_mapping = isinstance(
+            v,
+            collections.Mapping,
+        )
+
+        if is_mapping:
             try:
                 dest_value = dest[k]
             except KeyError:
                 comb[k] = v
-                pass
+                #pass
             else:
                 comb[k] = merge(
                     v,
@@ -47,7 +37,7 @@ def merge(source, dest):
                 dest_value = dest[k]
             except KeyError:
                 comb[k] = v
-                pass
+                #pass
             else:
                 comb[k] = dest_value
 
@@ -55,8 +45,7 @@ def merge(source, dest):
 
 
 def load():
-    defaults = load_defaults(
-    )
+    defaults = docman.data.defaults
 
     config_dir = xdg.BaseDirectory.save_config_path(
         'docman',

@@ -11,36 +11,10 @@ import docman.find.filters.years
 class Command(docman.cli.subcommands.Command):
     help = 'find documents matching criteria'
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
-        )
-
-        parser.add_argument(
-            '--dates',
-            dest='date_range',
-            help='date range',
-            metavar=(
-                'START_DATE',
-                'END_DATE',
-            ),
-            nargs=2,
-        )
-
-        parser.add_argument(
-            '--deductable',
-            action='store_true',
-            dest='only_deductable',
-            help='steuerlich absetzbare Ausgaben finden',
-        )
-
-        parser.add_argument(
-            '--years',
-            dest='years',
-            help='which years',
-            metavar='YEAR',
-            nargs='+',
         )
 
     def execute(self, args, session):
@@ -92,3 +66,30 @@ class Command(docman.cli.subcommands.Command):
         exit_code = 0
 
         return exit_code
+
+    def setup(self, config, parser):
+        parser.add_argument(
+            '--dates',
+            dest='date_range',
+            help='date range',
+            metavar=(
+                'START_DATE',
+                'END_DATE',
+            ),
+            nargs=2,
+        )
+
+        parser.add_argument(
+            '--deductable',
+            action='store_true',
+            dest='only_deductable',
+            help='steuerlich absetzbare Ausgaben finden',
+        )
+
+        parser.add_argument(
+            '--years',
+            dest='years',
+            help='which years',
+            metavar='YEAR',
+            nargs='+',
+        )

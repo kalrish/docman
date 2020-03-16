@@ -12,7 +12,7 @@ class Command(docman.cli.subcommands.manage.Command):
     ]
     help = 'update CloudFormation stack'
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -22,8 +22,6 @@ class Command(docman.cli.subcommands.manage.Command):
         )
 
         superinstance.__init__(
-            config,
-            parser,
         )
 
     def execute(self, args, session):
@@ -41,3 +39,12 @@ class Command(docman.cli.subcommands.manage.Command):
         exit_code = 0
 
         return exit_code
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
+            config,
+            parser,
+        )

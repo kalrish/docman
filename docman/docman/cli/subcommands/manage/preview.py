@@ -12,7 +12,7 @@ class Command(docman.cli.subcommands.manage.Command):
     ]
     help = 'create change set'
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -22,21 +22,6 @@ class Command(docman.cli.subcommands.manage.Command):
         )
 
         superinstance.__init__(
-            config,
-            parser,
-        )
-
-        parser.add_argument(
-            '--templates-bucket',
-            default=config['aws']['buckets']['cloudformation templates'],
-            dest='templates_bucket',
-            help='name of S3 bucket to which to upload CloudFormation template',
-            metavar='NAME',
-        )
-
-        parser.add_argument(
-            'template',
-            help='path to CloudFormation stack template',
         )
 
     def execute(self, args, session):
@@ -56,3 +41,25 @@ class Command(docman.cli.subcommands.manage.Command):
         exit_code = 0
 
         return exit_code
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
+            config,
+            parser,
+        )
+
+        parser.add_argument(
+            '--templates-bucket',
+            default=config['aws']['buckets']['cloudformation templates'],
+            dest='templates_bucket',
+            help='name of S3 bucket to which to upload CloudFormation template',
+            metavar='NAME',
+        )
+
+        parser.add_argument(
+            'template',
+            help='path to CloudFormation stack template',
+        )

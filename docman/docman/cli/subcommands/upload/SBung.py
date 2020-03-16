@@ -8,9 +8,8 @@ class Command(docman.cli.subcommands.upload.Command):
         'bank',
         'year',
     ]
-    help = 'Steuerbescheinigung'
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
@@ -20,8 +19,6 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         superinstance.__init__(
-            config,
-            parser,
         )
 
     def execute(self, args, session):
@@ -29,7 +26,7 @@ class Command(docman.cli.subcommands.upload.Command):
             '%Y',
         )
 
-        key = f'Steuerbescheinigungen/{ year }/{ args.bank }.pdf'
+        key = f'{ year }/{ args.bank }.pdf'
 
         tags = dict(
         )
@@ -45,3 +42,12 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         return exit_code
+
+    def setup(self, config, parser):
+        superinstance = super(
+        )
+
+        superinstance.setup(
+            config,
+            parser,
+        )

@@ -9,23 +9,10 @@ import docman.list
 class Command(docman.cli.subcommands.Command):
     help = 'list documents'
 
-    def __init__(self, config, parser):
+    def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
-        )
-
-        parser.add_argument(
-            '--with-tags',
-            action='store_true',
-            dest='include_tags',
-            help='query and display object tags',
-        )
-
-        parser.add_argument(
-            '--prefix',
-            dest='prefix',
-            help='query and display objects under specific prefix',
         )
 
     def execute(self, args, session):
@@ -58,3 +45,17 @@ class Command(docman.cli.subcommands.Command):
         exit_code = 0
 
         return exit_code
+
+    def setup(self, config, parser):
+        parser.add_argument(
+            '--with-tags',
+            action='store_true',
+            dest='include_tags',
+            help='query and display object tags',
+        )
+
+        parser.add_argument(
+            '--prefix',
+            dest='prefix',
+            help='query and display objects under specific prefix',
+        )
