@@ -75,7 +75,7 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         parser.add_argument(
-            '--konto',
+            '--account',
             dest='account',
             help='Kontonummer',
             required=True,

@@ -9,6 +9,8 @@ def list_documents(bucket, include_tags, prefix, session):
     objects = dict(
     )
 
+    count = 0
+
     s3 = session.client(
         's3',
     )
@@ -56,5 +58,12 @@ def list_documents(bucket, include_tags, prefix, session):
                 obj['Tags'] = tags
 
             objects[key] = obj
+
+            count = count + 1
+
+    logger.info(
+        '%i documents',
+        count,
+    )
 
     return objects

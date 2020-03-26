@@ -8,7 +8,7 @@ class CommandGroup(docman.cli.subcommands.CommandGroup):
     help = 'manage backing AWS infrastructure'
 
     def __init__(self, config, parser):
-        logger_name = f'{ __name__ }.{ Command.__name__ }'
+        logger_name = f'{ __name__ }.{ CommandGroup.__name__ }'
         self.logger = logging.getLogger(
             logger_name,
         )

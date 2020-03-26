@@ -2,12 +2,12 @@ import json
 import logging
 import sys
 
+import docman.check
 import docman.cli.subcommands
-import docman.list
 
 
 class Command(docman.cli.subcommands.Command):
-    help = 'list documents'
+    help = 'check database'
 
     def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
@@ -16,10 +16,8 @@ class Command(docman.cli.subcommands.Command):
         )
 
     def execute(self, args, session):
-        results = docman.list.list_documents(
+        results = docman.check.check_database(
             bucket=args.bucket,
-            include_tags=args.include_tags,
-            prefix=args.prefix,
             session=session,
         )
 
@@ -38,15 +36,4 @@ class Command(docman.cli.subcommands.Command):
         return exit_code
 
     def setup(self, config, parser):
-        parser.add_argument(
-            '--with-tags',
-            action='store_true',
-            dest='include_tags',
-            help='query and display object tags',
-        )
-
-        parser.add_argument(
-            '--prefix',
-            dest='prefix',
-            help='query and display objects under specific prefix',
-        )
+        pass
