@@ -49,6 +49,12 @@ def create_change_set(change_set_name, session, stack_name, template_path, templ
 
         template_argument['TemplateBody'] = template_body
     else:
+        logger.debug(
+            'CloudFormation stack template uploaded to S3: %s/%s',
+            templates_bucket,
+            key,
+        )
+
         template_url = f'https://{ templates_bucket }.s3.amazonaws.com/{ key }'
         template_argument['TemplateURL'] = template_url
 
@@ -83,7 +89,7 @@ def create_change_set(change_set_name, session, stack_name, template_path, templ
             error_code = original_exception.response['Error']['Code']
 
             logger.warning(
-                'cannot delete CloudFormation stack template from bucket %s / %s: %s',
+                'cannot delete CloudFormation stack template from S3: %s/%s: %s',
                 templates_bucket,
                 key,
                 error_code,
@@ -98,7 +104,7 @@ def create_change_set(change_set_name, session, stack_name, template_path, templ
             raise e
         else:
             logger.debug(
-                'CloudFormation stack template deleted from bucket %s / %s',
+                'CloudFormation stack template deleted from S3: %s/%s',
                 templates_bucket,
                 key,
             )

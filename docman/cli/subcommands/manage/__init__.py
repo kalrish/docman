@@ -30,7 +30,6 @@ class Command(docman.cli.subcommands.Command):
             'options': {
                 'help': 'name of CloudFormation stack',
                 'metavar': 'NAME',
-                'required': True,
             },
         },
     }
