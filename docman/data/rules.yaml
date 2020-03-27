@@ -1,6 +1,12 @@
 ---
 
 
+variables:
+   banks: &banks
+      - DKB
+      - N26
+
+
 allowed file name extensions:
    - jpeg
    - pdf
@@ -8,9 +14,7 @@ allowed file name extensions:
    - zip
 
 
-banks:
-   - DKB
-   - N26
+banks: *banks
 
 
 document types:
@@ -249,8 +253,7 @@ tags:
 
    bank:
       key: Bank
-      values:
-         - DKB
+      values: *banks
 
    date:
       key: date
