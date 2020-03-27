@@ -9,3 +9,8 @@ class CannotCreateChangeSet(Exception):
     def __init__(self, original_exception, stack_name):
         self.original_exception = original_exception
         self.stack_name = stack_name
+
+
+class TemplateFailedValidation(Exception):
+    def __init__(self, original_exception):
+        self.original_exception = original_exception

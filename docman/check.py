@@ -4,8 +4,15 @@ logger = logging.getLogger(
     __name__,
 )
 
+size_limit = 128000
 
-def check_database(bucket, session):
+storage_classes = {
+    False: 'STANDARD',
+    True: 'STANDARD_IA',
+}
+
+
+def check_content_type(bucket, session):
     results = dict(
     )
 
@@ -19,22 +26,14 @@ def check_database(bucket, session):
         'list_objects_v2',
     )
 
-    kwargs = dict(
-    )
-
-    kwargs['Bucket'] = bucket
-
     iterator = paginator.paginate(
-        **kwargs,
+        Bucket=bucket,
     )
 
     for response in iterator:
         contents = response['Contents']
 
         for content in contents:
-            problems = list(
-            )
-
             key = content['Key']
 
             response = s3.head_object(
@@ -44,23 +43,73 @@ def check_database(bucket, session):
 
             content_type = response['ContentType']
 
+            problem = None
+
             if content_type == '':
                 problem = 'missing Content-Type'
-
-                problems.append(
-                    problem,
-                )
             elif content_type == 'binary/octet-stream':
                 problem = 'generic Content-Type'
 
-                problems.append(
-                    problem,
-                )
-
-            if problems:
-                results[key] = problems
+            if problem:
+                results[key] = problem
 
                 count = count + 1
+
+    logger.info(
+        '%i objects do not comply',
+        count,
+    )
+
+    return results
+
+
+def check_storage_class(bucket, session):
+    results = dict(
+    )
+
+    s3 = session.client(
+        's3',
+    )
+
+    paginator = s3.get_paginator(
+        'list_objects_v2',
+    )
+
+    iterator = paginator.paginate(
+        Bucket=bucket,
+    )
+
+    for response in iterator:
+        contents = response['Contents']
+
+        for content in contents:
+            key = content['Key']
+            size = content['Size']
+            storage_class = content['StorageClass']
+
+            logger.debug(
+                '%s: size: %i',
+                key,
+                size,
+            )
+
+            logger.debug(
+                '%s: storage class: %s',
+                key,
+                storage_class,
+            )
+
+            too_big = size >= size_limit and storage_class == 'STANDARD'
+            too_small = size < size_limit and storage_class == 'STANDARD_IA'
+
+            if too_big:
+                results[key] = 'too big'
+            elif too_small:
+                results[key] = 'too small'
+
+    count = len(
+        results,
+    )
 
     logger.info(
         '%i objects do not comply',

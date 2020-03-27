@@ -14,6 +14,8 @@ content_type_map = {
     'pdf': 'application/pdf',
 }
 
+size_limit = 128000
+
 storage_classes = {
     False: 'STANDARD',
     True: 'STANDARD_IA',
@@ -37,7 +39,7 @@ def upload(bucket, content_type, key, path, session, tags):
 
         mime_type = return_tuple[0]
 
-        logger.debug(
+        logger.info(
             '%s: guessed MIME type: %s',
             path,
             mime_type,
@@ -88,7 +90,7 @@ def upload(bucket, content_type, key, path, session, tags):
                 size,
             )
 
-            file_is_big = size >= 128000
+            file_is_big = size >= size_limit
 
             storage_class = storage_classes[file_is_big]
 

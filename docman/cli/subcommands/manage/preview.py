@@ -34,7 +34,7 @@ class Command(docman.cli.subcommands.manage.Command):
         )
 
         docman.cli.diagnostics.report(
-            'CloudFormation change set {} created successfully',
+            'CloudFormation change set "{}" created successfully',
             args.change_set_name,
         )
 

@@ -37,8 +37,8 @@ def create_change_set(change_set_name, session, stack_name, template_path, templ
     except botocore.exceptions.ClientError as original_exception:
         error_code = original_exception.response['Error']['Code']
 
-        logger.warning(
-            'cannot upload CloudFormation stack template to %s/%s: %s',
+        logger.error(
+            'CloudFormation stack template: cannot upload to S3 (%s/%s): %s',
             templates_bucket,
             key,
             error_code,
@@ -50,7 +50,7 @@ def create_change_set(change_set_name, session, stack_name, template_path, templ
         template_argument['TemplateBody'] = template_body
     else:
         logger.debug(
-            'CloudFormation stack template uploaded to S3: %s/%s',
+            'CloudFormation stack template: uploaded to S3 (%s/%s)',
             templates_bucket,
             key,
         )
@@ -58,53 +58,130 @@ def create_change_set(change_set_name, session, stack_name, template_path, templ
         template_url = f'https://{ templates_bucket }.s3.amazonaws.com/{ key }'
         template_argument['TemplateURL'] = template_url
 
-    try:
-        cloudformation.create_change_set(
-            Capabilities=[
-                'CAPABILITY_NAMED_IAM',
-            ],
-            ChangeSetName=change_set_name,
-            ChangeSetType='UPDATE',
-            StackName=stack_name,
-            **template_argument,
-        )
-    except botocore.exceptions.ClientError as original_exception:
-        e = docman.manage.exceptions.CannotCreateChangeSet(
-            original_exception=original_exception,
-            stack_name=stack_name,
-        )
-
-        raise e
-    else:
-        logger.debug(
-            'CloudFormation change set creation request succeeded',
-        )
-    finally:
         try:
-            s3.delete_object(
-                Bucket=templates_bucket,
-                Key=key,
-            )
-        except botocore.exceptions.ClientError as original_exception:
-            error_code = original_exception.response['Error']['Code']
+            try:
+                response = cloudformation.validate_template(
+                    **template_argument,
+                )
+            except botocore.exceptions.ClientError as original_exception:
+                error_code = original_exception.response['Error']['Code']
 
-            logger.warning(
-                'cannot delete CloudFormation stack template from S3: %s/%s: %s',
-                templates_bucket,
-                key,
-                error_code,
-            )
+                logger.critical(
+                    'CloudFormation stack template: validation failed: %s',
+                    error_code,
+                )
 
-            e = docman.manage.exceptions.CannotCleanup(
-                bucket=templates_bucket,
-                key=key,
-                original_exception=original_exception,
-            )
+                e = docman.manage.exceptions.TemplatedFailedValidation(
+                    original_exception=original_exception,
+                )
 
+                raise e
+            else:
+                logger.debug(
+                    'CloudFormation stack template: validation passed',
+                )
+
+                capabilities = response['Capabilities']
+
+                required_capabilities = ', '.join(
+                    capabilities,
+                )
+
+                logger.debug(
+                    'CloudFormation stack template: required capabilities: %s',
+                    required_capabilities,
+                )
+
+                iterator = range(
+                    2,
+                )
+
+                for attempt in iterator:
+                    logger.debug(
+                        'CloudFormation stack "%s": change set "%s": creation attempt #%i',
+                        stack_name,
+                        change_set_name,
+                        attempt,
+                    )
+
+                    try:
+                        cloudformation.create_change_set(
+                            Capabilities=capabilities,
+                            ChangeSetName=change_set_name,
+                            ChangeSetType='UPDATE',
+                            StackName=stack_name,
+                            **template_argument,
+                        )
+                    except botocore.exceptions.ClientError as original_exception:
+                        error_code = original_exception.response['Error']['Code']
+
+                        logger.debug(
+                            'CloudFormation stack "%s": change set "%s": cannot create: %s',
+                            stack_name,
+                            change_set_name,
+                            error_code,
+                        )
+
+                        if error_code == 'AlreadyExistsException':
+                            logger.warning(
+                                'CloudFormation stack "%s": change set "%s": already exists',
+                                stack_name,
+                                change_set_name,
+                            )
+
+                            cloudformation.delete_change_set(
+                                ChangeSetName=change_set_name,
+                                StackName=stack_name,
+                            )
+
+                            logger.debug(
+                                'CloudFormation stack "%s": change set "%s": deleted',
+                                stack_name,
+                                change_set_name,
+                            )
+
+                            continue
+                        else:
+                            e = docman.manage.exceptions.CannotCreateChangeSet(
+                                original_exception=original_exception,
+                                stack_name=stack_name,
+                            )
+
+                            raise e
+                    else:
+                        logger.debug(
+                            'CloudFormation stack "%s": change set "%s": creation request succeeded',
+                            stack_name,
+                            change_set_name,
+                        )
+
+                        break
+        except Exception as e:
             raise e
-        else:
-            logger.debug(
-                'CloudFormation stack template deleted from S3: %s/%s',
-                templates_bucket,
-                key,
-            )
+        finally:
+            try:
+                s3.delete_object(
+                    Bucket=templates_bucket,
+                    Key=key,
+                )
+            except botocore.exceptions.ClientError as original_exception:
+                error_code = original_exception.response['Error']['Code']
+
+                logger.error(
+                    'CloudFormation stack template: cannot delete from S3 (%s/%s): %s',
+                    templates_bucket,
+                    key,
+                    error_code,
+                )
+            except:
+                logger.error(
+                    'CloudFormation stack template: cannot delete from S3 (%s/%s): unknown error',
+                    templates_bucket,
+                    key,
+                )
+            else:
+                logger.debug(
+                    'CloudFormation stack template: deleted from S3 (%s/%s)',
+                    templates_bucket,
+                    key,
+                )

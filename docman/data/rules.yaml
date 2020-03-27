@@ -4,6 +4,7 @@
 variables:
    banks: &banks
       - DKB
+      - ING
       - N26
 
 

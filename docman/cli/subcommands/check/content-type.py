@@ -7,7 +7,7 @@ import docman.cli.subcommands
 
 
 class Command(docman.cli.subcommands.Command):
-    help = 'check database'
+    help = 'Content-Type'
 
     def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
@@ -16,7 +16,7 @@ class Command(docman.cli.subcommands.Command):
         )
 
     def execute(self, args, session):
-        results = docman.check.check_database(
+        results = docman.check.check_content_type(
             bucket=args.bucket,
             session=session,
         )
