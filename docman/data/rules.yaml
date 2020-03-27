@@ -10,6 +10,7 @@ allowed file name extensions:
 
 banks:
    - DKB
+   - N26
 
 
 document types:
