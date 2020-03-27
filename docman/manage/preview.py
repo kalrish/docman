@@ -77,7 +77,7 @@ def create_change_set(change_set_name, session, stack_name, template_path, templ
         raise e
     else:
         logger.debug(
-            'FIXME',
+            'CloudFormation change set creation request succeeded',
         )
     finally:
         try:
