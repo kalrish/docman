@@ -39,7 +39,7 @@ def format_years_tag(dates):
 
 class CommandGroup(docman.cli.subcommands.CommandGroup):
     description = 'kind of document'
-    help = 'upload a document'
+    help = 'upload documents'
 
     def __init__(self, config, parser):
         logger_name = f'{ __name__ }.{ CommandGroup.__name__ }'

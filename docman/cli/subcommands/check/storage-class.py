@@ -36,4 +36,10 @@ class Command(docman.cli.subcommands.Command):
         return exit_code
 
     def setup(self, config, parser):
-        pass
+        superinstance = super(
+        )
+
+        superinstance.setup(
+            config,
+            parser,
+        )

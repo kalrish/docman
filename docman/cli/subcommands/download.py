@@ -4,7 +4,7 @@ import docman.cli.subcommands
 
 
 class Command(docman.cli.subcommands.Command):
-    help = 'download a document'
+    help = 'download documents'
 
     def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'

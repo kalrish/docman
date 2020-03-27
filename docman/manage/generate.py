@@ -18,7 +18,7 @@ def generate(bucket_name):
 
     template_data['Parameters']['BucketName']['Default'] = bucket_name
 
-    statements = template_data['Resources']['WritePolicy']['Properties']['PolicyDocument']['Statement']
+    statements = template_data['Resources']['DatabaseWritePolicy']['Properties']['PolicyDocument']['Statement']
 
     rules = docman.data.rules
 

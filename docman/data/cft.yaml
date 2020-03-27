@@ -149,10 +149,10 @@ Resources:
          },
       }
 
-   ReadPolicy:
+   DatabaseReadPolicy:
       Type: AWS::IAM::Policy
       Properties: {
-         PolicyName: read,
+         PolicyName: database-read,
          PolicyDocument: {
             Version: '2012-10-17',
             Statement: [
@@ -193,13 +193,41 @@ Resources:
          ],
       }
 
-   WritePolicy:
+   DatabaseWritePolicy:
       Type: AWS::IAM::Policy
       Properties: {
-         PolicyName: write,
+         PolicyName: database-write,
          PolicyDocument: {
             Version: '2012-10-17',
             Statement: [
+            ],
+         },
+         Roles: [
+            {
+               Ref: DocumentsManager,
+            },
+         ],
+      }
+
+   PricingPolicy:
+      Type: AWS::IAM::Policy
+      Properties: {
+         PolicyName: pricing,
+         PolicyDocument: {
+            Version: '2012-10-17',
+            Statement: [
+               {
+                  Sid: Pricing,
+                  Action: [
+                     'pricing:DescribeServices',
+                     'pricing:GetAttributeValues',
+                     'pricing:GetProducts',
+                  ],
+                  Resource: [
+                     '*',
+                  ],
+                  Effect: Allow,
+               },
             ],
          },
          Roles: [
