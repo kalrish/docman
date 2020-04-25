@@ -12,7 +12,6 @@ Properties:
       Version: '2012-10-17'
       Statement:
          -
-            Sid: AllowUpload
             Action:
                - s3:PutObject
                - s3:PutObjectTagging
