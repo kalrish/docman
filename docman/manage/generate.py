@@ -7,18 +7,14 @@ logger = logging.getLogger(
     __name__,
 )
 
-upload_actions = [
-    's3:PutObject',
-    's3:PutObjectTagging',
-]
-
 
 def generate(bucket_name):
     template_data = docman.data.cft
+    database_write_policy_template = docman.data.dbpw
 
     template_data['Parameters']['BucketName']['Default'] = bucket_name
 
-    statements = template_data['Resources']['DatabaseWritePolicy']['Properties']['PolicyDocument']['Statement']
+    resources = template_data['Resources']
 
     rules = docman.data.rules
 
@@ -28,45 +24,30 @@ def generate(bucket_name):
         tag_definitions,
     )
 
-    allowed_extensions = rules['allowed file name extensions']
-
     document_types = rules['document types']
 
     iterator = document_types.items(
     )
 
     for codename, document_type in iterator:
-        statement = dict(
-        )
+        resource_name = f'DatabaseWritePolicy{ codename }'
 
-        statement['Sid'] = codename
+        # FIXME: deep copy
+        resource = database_write_policy_template
 
-        statement['Action'] = upload_actions
+        resource['Properties']['PolicyName']['Fn::Join'][1][1] = codename
 
-        prefix = document_type['prefix']
-        sub_key = document_type['sub_key']
+        statement = resource['Properties']['PolicyDocument']['Statement'][0]
 
-        resources = list(
-        )
-
-        for allowed_extension in allowed_extensions:
-            resource = {
-                'Fn::Sub': f'${{Bucket.Arn}}/{ prefix }/{ sub_key }.{ allowed_extension }'
-            }
-
-            resources.append(
-                resource,
-            )
-
-        statement['Resource'] = resources
+        statement['Resource']['Fn::Sub'][1]['Prefix'] = document_type['prefix']
+        statement['Resource']['Fn::Sub'][1]['SubKey'] = document_type['sub_key']
 
         try:
             tags = document_type['tags']
         except KeyError:
             pass
         else:
-            conditions = dict(
-            )
+            conditions = statement['Condition']
 
             tag_keys = list(
             )
@@ -97,13 +78,7 @@ def generate(bucket_name):
                 's3:RequestObjectTagKeys': tag_keys,
             }
 
-            statement['Condition'] = conditions
-
-        statement['Effect'] = 'Allow'
-
-        statements.append(
-            statement,
-        )
+        resources[resource_name] = resource
 
     template = json.dumps(
         obj=template_data,

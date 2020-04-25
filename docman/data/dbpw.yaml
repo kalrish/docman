@@ -1,0 +1,30 @@
+---
+
+Type: AWS::IAM::Policy
+Properties:
+   PolicyName:
+      Fn::Join:
+         - '-'
+         -
+            - database-write
+            - null
+   PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+         -
+            Sid: AllowUpload
+            Action:
+               - s3:PutObject
+               - s3:PutObjectTagging
+            Resource:
+               Fn::Sub:
+                  - ${Bucket.Arn}/${Prefix}/${SubKey}.*
+                  -
+                     Prefix: null
+                     SubKey: null
+            Condition: {
+            }
+            Effect: Allow
+   Roles:
+      -
+         Ref: DocumentsManager

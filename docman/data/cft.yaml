@@ -193,22 +193,6 @@ Resources:
          ],
       }
 
-   DatabaseWritePolicy:
-      Type: AWS::IAM::Policy
-      Properties: {
-         PolicyName: database-write,
-         PolicyDocument: {
-            Version: '2012-10-17',
-            Statement: [
-            ],
-         },
-         Roles: [
-            {
-               Ref: DocumentsManager,
-            },
-         ],
-      }
-
    PricingPolicy:
       Type: AWS::IAM::Policy
       Properties: {

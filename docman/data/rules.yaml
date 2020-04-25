@@ -9,13 +9,6 @@ variables:
       - Trade Republic
 
 
-allowed file name extensions:
-   - jpeg
-   - pdf
-   - png
-   - zip
-
-
 banks: *banks
 
 
