@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 
@@ -32,8 +33,9 @@ def generate(bucket_name):
     for codename, document_type in iterator:
         resource_name = f'DatabaseWritePolicy{ codename }'
 
-        # FIXME: deep copy
-        resource = database_write_policy_template
+        resource = copy.deepcopy(
+            database_write_policy_template,
+        )
 
         resource['Properties']['PolicyName']['Fn::Join'][1][1] = codename
 
