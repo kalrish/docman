@@ -6,6 +6,7 @@ variables:
       - DKB
       - ING
       - N26
+      - Trade Republic
 
 
 allowed file name extensions:
