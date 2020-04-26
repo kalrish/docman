@@ -134,15 +134,19 @@ class Command(docman.cli.subcommands.Command):
         self.help = self.definition['full name']['singular']
 
     def execute_common(self, args, key, session, tags):
-        for common_argument_name, common_argument_definition in self.__class__.common_arguments_definition.items():
-            try:
+        try:
+            common_arguments = self.common_arguments
+        except AttributeError:
+            pass
+        else:
+            for common_argument in common_arguments:
+                common_argument_definition = self.__class__.common_arguments_definition[common_argument]
+
                 argument_value = getattr(
                     args,
-                    common_argument_name,
+                    common_argument,
                 )
-            except AttributeError:
-                pass
-            else:
+
                 common_argument_tags = common_argument_definition['tags']
 
                 for tag_key, tag_value_formatter in common_argument_tags.items():

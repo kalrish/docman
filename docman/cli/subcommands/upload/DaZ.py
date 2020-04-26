@@ -4,6 +4,11 @@ import docman.cli.subcommands.upload
 
 
 class Command(docman.cli.subcommands.upload.Command):
+    common_arguments = [
+        'bank',
+        'date',
+    ]
+
     def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
@@ -16,8 +21,27 @@ class Command(docman.cli.subcommands.upload.Command):
         superinstance.__init__(
         )
 
-    def execute(self, args):
-        return
+    def execute(self, args, session):
+        date = args.date.strftime(
+            '%Y-%m-%d',
+        )
+
+        key = f'{ args.depot }/{ date }.pdf'
+
+        tags = dict(
+        )
+
+        superinstance = super(
+        )
+
+        exit_code = superinstance.execute_common(
+            args=args,
+            key=key,
+            session=session,
+            tags=tags,
+        )
+
+        return exit_code
 
     def setup(self, config, parser):
         superinstance = super(
@@ -29,13 +53,8 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         parser.add_argument(
-            '-f',
-            '--format',
-            choices=[
-                'csv',
-                'json',
-            ],
-            dest='output_format',
-            help='output format',
+            '--depot',
+            dest='depot',
+            help='Depotnummer',
             required=True,
         )

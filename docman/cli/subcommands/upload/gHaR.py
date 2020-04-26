@@ -4,6 +4,10 @@ import docman.cli.subcommands.upload
 
 
 class Command(docman.cli.subcommands.upload.Command):
+    common_arguments = [
+        'year',
+    ]
+
     def __init__(self):
         logger_name = f'{ __name__ }.{ Command.__name__ }'
         self.logger = logging.getLogger(
@@ -17,7 +21,11 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
     def execute(self, args, session):
-        key = f'{ args.year }/{ args.month }.pdf'
+        year = args.year.strftime(
+            '%Y',
+        )
+
+        key = f'{year}/{args.month:02}.pdf'
 
         tags = dict(
         )
@@ -60,11 +68,5 @@ class Command(docman.cli.subcommands.upload.Command):
             dest='month',
             help='Month',
             required=True,
-        )
-
-        parser.add_argument(
-            '--year',
-            dest='year',
-            help='Year',
-            required=True,
+            type=int,
         )
