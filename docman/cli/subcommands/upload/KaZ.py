@@ -90,7 +90,7 @@ class Command(docman.cli.subcommands.upload.Command):
         )
 
         parser.add_argument(
-            '--to',
+            '--until',
             dest='end_date',
             help='End date',
             required=True,
