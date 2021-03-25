@@ -13,7 +13,7 @@ setuptools.setup(
     install_requires=[
         'boto3 == 1.12.19',
         'pyxdg == 0.26',
-        'PyYAML == 5.3',
+        'PyYAML == 5.4',
     ],
     name='docman',
     package_data={
